@@ -29,11 +29,11 @@ export default class CvEasyHeroComponent {
             </h2>
 
             <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-[#4b5563] sm:text-lg lg:mx-0">
-              Utilisez le générateur de CV intuitif pour ajouter rapidement du contenu, modifier les modèles et personnaliser les polices. Aucun téléchargement requis !
+              Utilisez un parcours simple pour remplir votre CV avec des conseils professionnels sur chaque champ. Aucun téléchargement requis.
             </p>
 
             <div class="mt-8">
-              <button class="w-full rounded-2xl border border-[var(--hp-blue-700)] bg-white px-8 py-3.5 text-sm font-semibold text-[var(--hp-blue-700)] transition hover:bg-[var(--hp-blue-700)] hover:text-white sm:w-auto">
+              <button type="button" data-auth-mode="signup" class="w-full rounded-2xl border border-[var(--hp-blue-700)] bg-white px-8 py-3.5 text-sm font-semibold text-[var(--hp-blue-700)] transition hover:bg-[var(--hp-blue-700)] hover:text-white sm:w-auto">
                 S'inscrire
               </button>
             </div>

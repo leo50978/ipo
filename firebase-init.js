@@ -1,20 +1,128 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAk3TYeyALujTKQbcW7wpmBmcoud6Gv06s",
-  authDomain: "urh2-aaa13.firebaseapp.com",
-  projectId: "urh2-aaa13",
-  storageBucket: "urh2-aaa13.firebasestorage.app",
-  messagingSenderId: "23035313137",
-  appId: "1:23035313137:web:b4600526c3cfe37fea2250"
+    apiKey: 'AIzaSyBsryzRzoAEWwd676VM2xwzinNaLLVFe20',
+    authDomain: 'hiprofile-32b27.firebaseapp.com',
+    projectId: 'hiprofile-32b27',
+    storageBucket: 'hiprofile-32b27.firebasestorage.app',
+    messagingSenderId: '741509949693',
+    appId: '1:741509949693:web:27b8dd34eb65798859f694',
+    measurementId: 'G-FTRX3S8Y34'
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+const tipsCollection = collection(db, 'tips');
 
-export { app, auth, db, storage };
+export const TIP_FIELDS = [
+    { key: 'firstname', label: 'Prenom' },
+    { key: 'middlename', label: 'Deuxieme prenom' },
+    { key: 'lastname', label: 'Nom' },
+    { key: 'designation', label: 'Metier' },
+    { key: 'email', label: 'Email' },
+    { key: 'phones', label: 'Numeros de telephone' },
+    { key: 'address', label: 'Adresse complete' },
+    { key: 'summary', label: 'Resume' },
+    { key: 'image', label: 'Photo de profil' },
+    { key: 'experiences', label: 'Experiences professionnelles' },
+    { key: 'educations', label: 'Formations' },
+    { key: 'languages', label: 'Langues et niveau' },
+    { key: 'tools', label: 'Logiciels ou materiels utilises' },
+    { key: 'interests', label: 'Centres d interet' }
+];
+
+function mapDoc(snapshot) {
+    const data = snapshot.data() || {};
+    return {
+        id: snapshot.id,
+        fieldKey: data.fieldKey || '',
+        title: data.title || '',
+        content: data.content || '',
+        status: data.status || 'active',
+        createdAt: data.createdAt || null,
+        updatedAt: data.updatedAt || null
+    };
+}
+
+function sortByUpdatedDesc(items) {
+    return items.sort((a, b) => {
+        const aSec = a.updatedAt?.seconds || a.createdAt?.seconds || 0;
+        const bSec = b.updatedAt?.seconds || b.createdAt?.seconds || 0;
+        return bSec - aSec;
+    });
+}
+
+export function getTipFieldLabel(fieldKey) {
+    return TIP_FIELDS.find((item) => item.key === fieldKey)?.label || fieldKey;
+}
+
+export async function listAllTips() {
+    const snap = await getDocs(tipsCollection);
+    return sortByUpdatedDesc(snap.docs.map(mapDoc));
+}
+
+export async function listTipsByField(fieldKey) {
+    const q = query(tipsCollection, where('fieldKey', '==', fieldKey));
+    const snap = await getDocs(q);
+    return sortByUpdatedDesc(snap.docs.map(mapDoc)).filter((tip) => tip.status === 'active');
+}
+
+export async function createTip(payload) {
+    const fieldKey = String(payload.fieldKey || '').trim();
+    const title = String(payload.title || '').trim();
+    const content = String(payload.content || '').trim();
+    const status = payload.status === 'archived' ? 'archived' : 'active';
+
+    if (!fieldKey || !title || !content) {
+        throw new Error('Les champs fieldKey, title et content sont obligatoires.');
+    }
+
+    const docRef = await addDoc(tipsCollection, {
+        fieldKey,
+        title,
+        content,
+        status,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+    });
+
+    return docRef.id;
+}
+
+export async function updateTip(id, payload) {
+    const fieldKey = String(payload.fieldKey || '').trim();
+    const title = String(payload.title || '').trim();
+    const content = String(payload.content || '').trim();
+    const status = payload.status === 'archived' ? 'archived' : 'active';
+
+    if (!id || !fieldKey || !title || !content) {
+        throw new Error('Id, fieldKey, title et content sont obligatoires.');
+    }
+
+    await updateDoc(doc(db, 'tips', id), {
+        fieldKey,
+        title,
+        content,
+        status,
+        updatedAt: serverTimestamp()
+    });
+}
+
+export async function deleteTip(id) {
+    if (!id) throw new Error('Id manquant.');
+    await deleteDoc(doc(db, 'tips', id));
+}

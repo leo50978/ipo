@@ -16,15 +16,15 @@ export default class CvExamplesHeroComponent {
         <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-2 lg:gap-14">
           <div class="order-2 text-center lg:order-1 lg:text-left">
             <h2 class="text-3xl font-extrabold leading-tight text-[#111827] sm:text-4xl lg:text-5xl">
-              Consultez de vrais exemples de CV au fur et à mesure que vous les construisez
+              Au fur et à mesure que vous remplissez votre CV, accédez à des conseils d'experts en ressources humaines
             </h2>
 
             <p class="mt-6 text-base leading-relaxed text-[#4b5563] sm:text-lg">
-              Inspirez-vous de véritables exemples de CV, puis personnalisez le vôtre grâce à notre outil de création de CV avec des modèles compatibles avec les systèmes de suivi des candidatures (ATS) et des suggestions basées sur l'IA.
+              Notre outil vous accompagne en direct pendant la saisie avec des conseils professionnels pour chaque champ: profil, expériences, formations, compétences et centres d'intérêt.
             </p>
 
             <div class="mt-8">
-              <button class="w-full rounded-2xl bg-[var(--hp-blue-700)] px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-[var(--hp-blue-900)] sm:w-auto">
+              <button type="button" data-auth-mode="signup" class="w-full rounded-2xl bg-[var(--hp-blue-700)] px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-[var(--hp-blue-900)] sm:w-auto">
                 S'inscrire
               </button>
             </div>

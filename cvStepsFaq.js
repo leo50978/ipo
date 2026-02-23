@@ -23,28 +23,28 @@ export default class CvStepsFaqComponent {
               <div class="mx-auto mb-5 text-4xl text-white sm:text-5xl">
                 <i class="fa-regular fa-file-lines"></i>
               </div>
-              <h3 class="text-xl font-bold text-white">Choisissez le modèle de votre CV</h3>
+              <h3 class="text-xl font-bold text-white">Renseignez vos informations essentielles</h3>
             </article>
 
             <article class="text-center">
               <div class="mx-auto mb-5 text-4xl text-white sm:text-5xl">
                 <i class="fa-solid fa-sliders"></i>
               </div>
-              <h3 class="text-xl font-bold text-white">Personnalisez votre CV</h3>
+              <h3 class="text-xl font-bold text-white">Appliquez les conseils champ par champ</h3>
             </article>
 
             <article class="text-center">
               <div class="mx-auto mb-5 text-4xl text-white sm:text-5xl">
                 <i class="fa-solid fa-chart-line"></i>
               </div>
-              <h3 class="text-xl font-bold text-white">Suivez vos résultats</h3>
+              <h3 class="text-xl font-bold text-white">Exportez et postulez</h3>
             </article>
           </div>
 
           <div class="mx-auto mt-20 max-w-4xl space-y-9">
             <article>
-              <h4 class="text-lg font-bold text-white">1. Qu'est-ce qu'un outil de création de CV et comment fonctionne-t-il ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Un créateur de CV est une interface guidée qui vous aide à structurer, rédiger et mettre en forme votre CV rapidement avec des modèles professionnels.</p>
+              <h4 class="text-lg font-bold text-white">1. Comment fonctionne votre outil de creation de CV ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">C'est une interface guidee qui vous accompagne et fournit des conseils professionnels pour chaque champ a renseigner.</p>
             </article>
 
             <article>
@@ -53,18 +53,18 @@ export default class CvStepsFaqComponent {
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">3. Ce créateur de CV est-il gratuit ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Une partie des fonctionnalités est généralement disponible gratuitement, avec des options avancées selon le plan choisi.</p>
+              <h4 class="text-lg font-bold text-white">3. Ce createur de CV est-il simple a utiliser ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, chaque etape est guidee avec des conseils clairs pour avancer rapidement sans complexite.</p>
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">4. Les modèles de CV sont-ils compatibles avec les systèmes ATS ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, les modèles sont optimisés pour les ATS afin d’améliorer la lisibilité et le traitement automatique de votre candidature.</p>
+              <h4 class="text-lg font-bold text-white">4. Proposez-vous plusieurs modeles de CV ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">Non, nous privilegions une structure claire unique et des conseils RH de qualite pour chaque champ.</p>
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">5. Comment choisir le meilleur modèle de CV pour mon poste ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Choisissez un modèle clair et adapté à votre secteur, en mettant en avant les compétences et expériences les plus pertinentes.</p>
+              <h4 class="text-lg font-bold text-white">5. Comment adapter mon CV a mon poste cible ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">Suivez les recommandations sur chaque section pour mettre en avant les experiences et competences les plus pertinentes.</p>
             </article>
 
             <article>
@@ -73,8 +73,8 @@ export default class CvStepsFaqComponent {
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">7. L'outil aide-t-il à rédiger du contenu ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, des suggestions de formulation et de structure peuvent vous aider à rédiger un contenu plus clair et convaincant.</p>
+              <h4 class="text-lg font-bold text-white">7. L'outil aide-t-il a rediger du contenu ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, vous recevez des conseils professionnels pratiques pour rediger chaque champ avec clarte et impact.</p>
             </article>
 
             <article>
@@ -83,8 +83,8 @@ export default class CvStepsFaqComponent {
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">9. Puis-je créer une version en ligne de mon CV ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, vous pouvez souvent générer un lien partageable vers une version web de votre CV.</p>
+              <h4 class="text-lg font-bold text-white">9. Puis-je creer une version en ligne de mon CV ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">L'objectif principal est de generer une version PDF propre et prete a l'envoi.</p>
             </article>
 
             <article>
@@ -93,8 +93,8 @@ export default class CvStepsFaqComponent {
             </article>
 
             <article>
-              <h4 class="text-lg font-bold text-white">11. Est-il adapté aux étudiants et débutants ?</h4>
-              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, les modèles et suggestions conviennent aussi aux profils juniors, stages et premiers emplois.</p>
+              <h4 class="text-lg font-bold text-white">11. Est-il adapte aux etudiants et debutants ?</h4>
+              <p class="mt-2 text-base leading-relaxed text-white/80">Oui, les conseils sont utiles pour tous les profils, y compris les stages, alternances et premiers emplois.</p>
             </article>
           </div>
         </div>

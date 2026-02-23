@@ -24,7 +24,7 @@ export default class HeaderComponent {
     this.render();
   }
 
-  handleClick(event) {
+  async handleClick(event) {
     const action = event.target.closest("[data-action]")?.dataset.action;
     if (!action) return;
 
@@ -49,6 +49,29 @@ export default class HeaderComponent {
       this.isMobileMenuOpen = false;
       this.render();
     }
+
+    if (action === "logout") {
+      this.user = null;
+      this.isMobileMenuOpen = false;
+      this.render();
+      await this.authApi?.logout?.();
+    }
+
+    if (action === "start-cv") {
+      this.isMobileMenuOpen = false;
+      this.render();
+      const path = window.location.pathname || "";
+      const isIndexPath =
+        path === "/" ||
+        path.endsWith("/index.html");
+
+      if (isIndexPath) {
+        window.dispatchEvent(new CustomEvent("app:open-builder"));
+        return;
+      }
+
+      window.location.href = "./index.html?open=builder";
+    }
   }
 
   renderActions(isMobile = false) {
@@ -64,8 +87,11 @@ export default class HeaderComponent {
 
       return `
         <div class="${containerClass}">
-          <button class="rounded-xl bg-[var(--hp-blue-700)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--hp-blue-900)] ${isMobile ? "w-full" : ""}">
-            Upgrade
+          <button data-action="start-cv" class="rounded-xl bg-[var(--hp-blue-700)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--hp-blue-900)] ${isMobile ? "w-full" : ""}">
+            Commencer mon cv gratuit
+          </button>
+          <button data-action="logout" class="rounded-xl border border-[var(--hp-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--hp-blue-900)] transition hover:border-[var(--hp-blue-500)] hover:bg-[#f6f9ff] ${isMobile ? "w-full" : ""}">
+            Deconnexion
           </button>
           <button class="flex h-10 ${isMobile ? "w-full justify-start px-4" : "w-10 justify-center"} items-center rounded-full border border-[var(--hp-line)] bg-white text-sm font-semibold text-[var(--hp-blue-900)] shadow-sm" title="${this.user.email || "Profil"}">
             ${initial}
@@ -91,15 +117,15 @@ export default class HeaderComponent {
       <header class="w-full border-b border-[var(--hp-line)] bg-white/90 backdrop-blur">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:grid md:grid-cols-[1fr_auto_1fr] md:px-6 md:py-4">
           <a href="#" class="flex items-center gap-3 justify-self-start">
-            <img src="./Logo.webp" alt="Logo hiprofile" class="h-10 w-auto max-w-[128px] object-contain md:h-11 md:max-w-[152px]" />
+            <img src="./Logo.webp" alt="Logo Hiprofil" class="h-10 w-auto max-w-[128px] object-contain md:h-11 md:max-w-[152px]" />
             <div>
-              <p class="text-lg font-extrabold tracking-tight text-[var(--hp-blue-900)] md:text-xl">hiprofile</p>
+              <p class="text-lg font-extrabold tracking-tight text-[var(--hp-blue-900)] md:text-xl">Hiprofil</p>
             </div>
           </a>
 
           <nav class="hidden items-center gap-8 text-sm font-semibold text-[var(--hp-blue-900)] md:flex">
             <a href="#" class="transition hover:text-[var(--hp-blue-500)]">Accueil</a>
-            <a href="#" class="transition hover:text-[var(--hp-blue-500)]">Solutions</a>
+            <a href="#" class="transition hover:text-[var(--hp-blue-500)]">Ressource</a>
             <a href="#" class="transition hover:text-[var(--hp-blue-500)]">Tarifs</a>
             <a href="#" class="transition hover:text-[var(--hp-blue-500)]">Contact</a>
           </nav>
@@ -121,7 +147,7 @@ export default class HeaderComponent {
         <div class="${this.isMobileMenuOpen ? "block" : "hidden"} border-t border-[var(--hp-line)] bg-white px-4 pb-4 pt-3 md:hidden">
           <nav class="mb-4 flex flex-col gap-3 text-sm font-semibold text-[var(--hp-blue-900)]">
             <a href="#" data-action="close-mobile-menu" class="rounded-lg px-2 py-1.5 transition hover:bg-[#f6f9ff]">Accueil</a>
-            <a href="#" data-action="close-mobile-menu" class="rounded-lg px-2 py-1.5 transition hover:bg-[#f6f9ff]">Solutions</a>
+            <a href="#" data-action="close-mobile-menu" class="rounded-lg px-2 py-1.5 transition hover:bg-[#f6f9ff]">Ressource</a>
             <a href="#" data-action="close-mobile-menu" class="rounded-lg px-2 py-1.5 transition hover:bg-[#f6f9ff]">Tarifs</a>
             <a href="#" data-action="close-mobile-menu" class="rounded-lg px-2 py-1.5 transition hover:bg-[#f6f9ff]">Contact</a>
           </nav>

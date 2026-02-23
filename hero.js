@@ -1,8 +1,18 @@
-// Chemins des templates (3 templates seulement)
-const HERO_IMAGES = [
-  "./template1.jpg",
-  "./template2.webp",
-  "./template3.jpg"
+// Image unique du hero
+const HERO_IMAGE = "./template2.webp";
+const HERO_TITLE_ROTATION = [
+  {
+    text: "Créez un CV prêt à décrocher un emploi en quelques minutes",
+    color: "#0b2f66"
+  },
+  {
+    text: "Construisez un CV clair qui attire l'attention des recruteurs",
+    color: "#1f4fa3"
+  },
+  {
+    text: "Gagnez du temps avec un CV moderne, structuré et convaincant",
+    color: "#2f6ee5"
+  }
 ];
 
 export default class HeroComponent {
@@ -16,6 +26,8 @@ export default class HeroComponent {
     this.injectStyles();
     this.render();
     this.bindTilt();
+    this.bindAuthCta();
+    this.startTitleAnimation();
   }
 
   injectStyles() {
@@ -73,6 +85,20 @@ export default class HeroComponent {
           letter-spacing: -0.02em;
           color: #121821;
           margin-bottom: 0.75rem;
+          min-height: 2.6em;
+          transition: color 260ms ease;
+        }
+
+        .hero-title-track {
+          display: inline-block;
+        }
+
+        .hero-title-letter {
+          display: inline-block;
+          opacity: 0;
+          transform: translateY(18px);
+          filter: blur(4px);
+          will-change: transform, opacity, filter;
         }
 
         .hero-description {
@@ -81,6 +107,33 @@ export default class HeroComponent {
           color: #4e6680;
           max-width: 90%;
           margin: 0 auto;
+        }
+
+        .hero-google-btn {
+          margin-top: 1rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.55rem;
+          border-radius: 0.85rem;
+          border: 1px solid #d5e3ff;
+          background: #ffffff;
+          color: #0b2f66;
+          font-weight: 700;
+          font-size: 0.95rem;
+          padding: 0.72rem 1rem;
+          box-shadow: 0 8px 20px rgba(15, 42, 94, 0.12);
+          transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .hero-google-btn:hover {
+          border-color: #2f6ee5;
+          box-shadow: 0 12px 24px rgba(47, 110, 229, 0.2);
+          transform: translateY(-2px);
+        }
+
+        .hero-google-btn:active {
+          transform: translateY(0);
         }
 
         /* WRAPPER DES TEMPLATES - MOBILE FIRST */
@@ -413,19 +466,23 @@ export default class HeroComponent {
               Créateur de CV en ligne pour CV professionnels
             </p>
             <h1 class="hero-title">
-              Créez un CV prêt à décrocher un emploi en quelques minutes
+              <span class="hero-title-track" data-hero-title-track></span>
             </h1>
             <p class="hero-description">
               Le créateur de CV numéro 1 pour les CV professionnels, utilisé par des millions de personnes
             </p>
+            <button type="button" class="hero-google-btn" data-action="hero-google-login">
+              <i class="fa-brands fa-google" aria-hidden="true"></i>
+              Se connecter avec Google
+            </button>
           </div>
 
           <div class="templates-wrapper">
             <div class="templates-container">
               <div class="template template-center">
                 <img
-                  src="${HERO_IMAGES[0]}"
-                  alt="Template 1"
+                  src="${HERO_IMAGE}"
+                  alt="Template 2"
                   class="template-media"
                   loading="eager"
                 />
@@ -479,5 +536,114 @@ export default class HeroComponent {
     card.addEventListener("pointermove", onMove);
     card.addEventListener("pointerleave", onLeave);
     card.addEventListener("pointerenter", onEnter);
+  }
+
+  bindAuthCta() {
+    const button = this.root.querySelector('[data-action="hero-google-login"]');
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+      const googleBtn = document.querySelector('#auth-modal-root [data-action="google"]');
+      if (googleBtn instanceof HTMLElement) {
+        googleBtn.click();
+      }
+    });
+  }
+
+  delay(ms) {
+    return new Promise((resolve) => {
+      window.setTimeout(resolve, ms);
+    });
+  }
+
+  buildStaggerDelays(total, fast = 26, slow = 62) {
+    const delays = [];
+    let cursor = 0;
+    for (let index = 0; index < total; index += 1) {
+      delays.push(cursor);
+      const ratio = total > 1 ? index / (total - 1) : 0;
+      const step = ratio >= 0.3 && ratio <= 0.7 ? slow : fast;
+      cursor += step;
+    }
+    return delays;
+  }
+
+  async animateLettersIn(letters) {
+    const delays = this.buildStaggerDelays(letters.length, 24, 56);
+    const animations = letters.map((letter, index) => letter.animate(
+      [
+        { opacity: 0, transform: "translateY(18px)", filter: "blur(4px)" },
+        { opacity: 1, transform: "translateY(0px)", filter: "blur(0px)" }
+      ],
+      {
+        duration: 240,
+        delay: delays[index],
+        fill: "forwards",
+        easing: "cubic-bezier(0.2, 0.85, 0.25, 1)"
+      }
+    ).finished.catch(() => null));
+
+    await Promise.all(animations);
+  }
+
+  async animateLettersOut(letters) {
+    const reversed = [...letters].reverse();
+    const delays = this.buildStaggerDelays(reversed.length, 22, 50);
+    const animations = reversed.map((letter, index) => letter.animate(
+      [
+        { opacity: 1, transform: "translateY(0px)", filter: "blur(0px)" },
+        { opacity: 0, transform: "translateY(-12px)", filter: "blur(4px)" }
+      ],
+      {
+        duration: 190,
+        delay: delays[index],
+        fill: "forwards",
+        easing: "cubic-bezier(0.65, 0.05, 0.85, 0.25)"
+      }
+    ).finished.catch(() => null));
+
+    await Promise.all(animations);
+  }
+
+  renderTitleLetters(track, text) {
+    track.innerHTML = "";
+    const letters = [];
+    [...text].forEach((char) => {
+      const span = document.createElement("span");
+      span.className = "hero-title-letter";
+      span.textContent = char === " " ? "\u00A0" : char;
+      track.appendChild(span);
+      letters.push(span);
+    });
+    return letters;
+  }
+
+  async startTitleAnimation() {
+    const title = this.root.querySelector(".hero-title");
+    const track = this.root.querySelector("[data-hero-title-track]");
+    if (!title || !track) return;
+
+    const loopId = Symbol("hero-title-loop");
+    this.titleLoopId = loopId;
+    let index = 0;
+
+    while (this.titleLoopId === loopId) {
+      const item = HERO_TITLE_ROTATION[index];
+      title.style.color = item.color;
+      title.setAttribute("aria-label", item.text);
+      const letters = this.renderTitleLetters(track, item.text);
+
+      await this.animateLettersIn(letters);
+      if (this.titleLoopId !== loopId) return;
+
+      await this.delay(8000);
+      if (this.titleLoopId !== loopId) return;
+
+      await this.animateLettersOut(letters);
+      if (this.titleLoopId !== loopId) return;
+
+      await this.delay(220);
+      index = (index + 1) % HERO_TITLE_ROTATION.length;
+    }
   }
 }

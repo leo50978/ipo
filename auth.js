@@ -3,6 +3,7 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  signOut,
   signInWithEmailAndPassword,
   signInWithPopup,
   updateProfile,
@@ -26,12 +27,25 @@ const refs = {
 
 function clearFeedback() {
   refs.error.textContent = "";
+  refs.error.classList.remove("bg-red-50", "text-red-700", "bg-emerald-50", "text-emerald-700");
   refs.error.classList.add("hidden");
 }
 
 function setError(message) {
   refs.error.textContent = message;
-  refs.error.classList.remove("hidden");
+  refs.error.classList.remove("hidden", "bg-emerald-50", "text-emerald-700");
+  refs.error.classList.add("bg-red-50", "text-red-700");
+}
+
+function normalizeAuthError(error) {
+  const code = error?.code || "";
+  if (code === "auth/invalid-credential") return "Identifiants invalides.";
+  if (code === "auth/invalid-email") return "Adresse email invalide.";
+  if (code === "auth/email-already-in-use") return "Cette adresse email est deja utilisee.";
+  if (code === "auth/weak-password") return "Mot de passe trop faible (minimum 6 caracteres).";
+  if (code === "auth/too-many-requests") return "Trop de tentatives. Reessayez plus tard.";
+  if (code === "auth/popup-closed-by-user") return "Connexion Google annulee.";
+  return error?.message || "Echec de l'authentification.";
 }
 
 function setMode(mode) {
@@ -81,14 +95,17 @@ async function submitAuth(event) {
       if (name) {
         await updateProfile(credential.user, { displayName: name });
       }
+      if (name) refs.nameInput.value = "";
+      emitAuthChanged(credential.user);
     } else {
-      await signInWithEmailAndPassword(auth, email, password);
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      emitAuthChanged(credential.user);
     }
 
     refs.passwordInput.value = "";
     close();
   } catch (error) {
-    setError(error?.message || "Échec de l'authentification.");
+    setError(normalizeAuthError(error));
   }
 }
 
@@ -96,10 +113,11 @@ async function signInGoogle() {
   clearFeedback();
   try {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    const credential = await signInWithPopup(auth, provider);
+    emitAuthChanged(credential.user);
     close();
   } catch (error) {
-    setError(error?.message || "Connexion Google impossible.");
+    setError(normalizeAuthError(error));
   }
 }
 
@@ -131,7 +149,7 @@ function setupModal() {
           <label class="mb-1 block text-sm font-medium text-slate-700">Mot de passe</label>
           <input id="auth-password" type="password" class="w-full rounded-xl border border-[var(--hp-line)] px-3 py-2 outline-none ring-0 focus:border-[var(--hp-blue-500)]" placeholder="********" />
         </div>
-        <p id="auth-error" class="hidden rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"></p>
+        <p id="auth-error" class="hidden rounded-lg px-3 py-2 text-sm"></p>
         <button id="auth-submit" type="submit" class="w-full rounded-xl bg-[var(--hp-blue-700)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--hp-blue-900)]"></button>
       </form>
 
@@ -178,11 +196,17 @@ function emitAuthChanged(user) {
   window.dispatchEvent(new CustomEvent("auth:changed", { detail: { user } }));
 }
 
+async function logout() {
+  emitAuthChanged(null);
+  await signOut(auth);
+}
+
 export function initAuth() {
   if (initialized) {
     return {
       open,
       close,
+      logout,
       getCurrentUser: () => auth.currentUser,
     };
   }
@@ -198,6 +222,7 @@ export function initAuth() {
   return {
     open,
     close,
+    logout,
     getCurrentUser: () => auth.currentUser,
   };
 }

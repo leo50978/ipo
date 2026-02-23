@@ -36,21 +36,28 @@
   </style>
 </head>
 <body>
-  
-  <div id="sierra-header-root"></div>
-  <div id="sierra-hero-root"></div>
-  
-  <div id="sierra-cv-features-root"></div>
-  <div id="sierra-cv-hero-root"></div>
-  <div id="sierra-cv-examples-hero-root"></div>
-  <div id="sierra-cv-main-hero-root"></div>
-  <div id="sierra-cv-full-features-root"></div>
-  <div id="sierra-cv-easy-hero-root"></div>
-  <div id="sierra-cv-resources-hero-root"></div>
-  <div id="sierra-cv-resources-hero-alt-root"></div>
-  <div id="sierra-cv-resources-hero-v2-root"></div>
-  <div id="sierra-cv-steps-faq-root"></div>
-  <div id="sierra-cv-cta-footer-root"></div>
+  <main id="home-content">
+    <div id="sierra-header-root"></div>
+    <div id="sierra-hero-root"></div>
+    
+    <div id="sierra-cv-features-root"></div>
+    <div id="sierra-cv-hero-root"></div>
+    <div id="sierra-cv-examples-hero-root"></div>
+    <div id="sierra-cv-main-hero-root"></div>
+    <div id="sierra-cv-full-features-root"></div>
+    <div id="sierra-cv-easy-hero-root"></div>
+    <div id="sierra-cv-resources-hero-root"></div>
+    <div id="sierra-cv-resources-hero-alt-root"></div>
+    <div id="sierra-cv-resources-hero-v2-root"></div>
+    <div id="sierra-cv-steps-faq-root"></div>
+    <div id="sierra-cv-cta-footer-root"></div>
+  </main>
+
+  <section id="builder-section" hidden aria-hidden="true" class="fixed inset-0 z-50 bg-slate-900">
+    <builder-cv id="builder-cv"></builder-cv>
+    <previsualisation-cv id="previsualisation-cv" hidden></previsualisation-cv>
+    <tips-modal id="tips-modal"></tips-modal>
+  </section>
 
   <script type="module">
     import HeaderComponent from "./header.js";
@@ -70,11 +77,79 @@
     import "./sectionBgMotion.js";
     import "./scrollSceneMotion.js";
     import "./imageScrollMotion.js";
+    import "./buildercv.js";
+    import "./previsualisation.js";
+    import "./tips.js";
     import { initAuth } from "./auth.js";
 
     const authApi = initAuth();
     new HeaderComponent("sierra-header-root", { authApi });
     new HeroComponent("sierra-hero-root");
+    const builderSection = document.getElementById("builder-section");
+    const homeContent = document.getElementById("home-content");
+    const builderComponent = document.getElementById("builder-cv");
+    const previewComponent = document.getElementById("previsualisation-cv");
+    const tipsModal = document.getElementById("tips-modal");
+
+    const updateOpenBuilderParam = (enabled) => {
+      const url = new URL(window.location.href);
+      if (enabled) {
+        url.searchParams.set("open", "builder");
+      } else {
+        url.searchParams.delete("open");
+      }
+      window.history.replaceState({}, "", url);
+    };
+
+    const openBuilder = () => {
+      if (!builderSection || !homeContent || !builderComponent || !previewComponent) return;
+      homeContent.hidden = true;
+      builderSection.hidden = false;
+      builderSection.setAttribute("aria-hidden", "false");
+      builderComponent.hidden = false;
+      previewComponent.hidden = true;
+      if (typeof builderComponent.resetFlow === "function") {
+        builderComponent.resetFlow();
+      }
+      if (tipsModal && typeof tipsModal.close === "function") {
+        tipsModal.close();
+      }
+      document.body.classList.add("overflow-hidden");
+      updateOpenBuilderParam(true);
+    };
+
+    const closeBuilder = () => {
+      if (!builderSection || !homeContent || !builderComponent || !previewComponent) return;
+      builderSection.hidden = true;
+      builderSection.setAttribute("aria-hidden", "true");
+      builderComponent.hidden = false;
+      previewComponent.hidden = true;
+      homeContent.hidden = false;
+      if (tipsModal && typeof tipsModal.close === "function") {
+        tipsModal.close();
+      }
+      document.body.classList.remove("overflow-hidden");
+      updateOpenBuilderParam(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const openPreview = (data) => {
+      if (!builderComponent || !previewComponent) return;
+      builderComponent.hidden = true;
+      previewComponent.hidden = false;
+      if (tipsModal && typeof tipsModal.close === "function") {
+        tipsModal.close();
+      }
+      if (typeof previewComponent.loadData === "function") {
+        previewComponent.loadData(data);
+      }
+    };
+
+    const backToBuilder = () => {
+      if (!builderComponent || !previewComponent) return;
+      previewComponent.hidden = true;
+      builderComponent.hidden = false;
+    };
 
     const syncAuthButtonsVisibility = (user) => {
       const isConnected = Boolean(user);
@@ -135,7 +210,8 @@
 
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-cv-start]")) {
-        window.location.href = "./index.html?open=builder";
+        event.preventDefault();
+        openBuilder();
         return;
       }
       const trigger = event.target.closest("[data-auth-mode]");
@@ -143,6 +219,34 @@
       const mode = trigger.getAttribute("data-auth-mode") || "login";
       authApi.open(mode);
     });
+
+    window.addEventListener("app:open-builder", openBuilder);
+    if (builderSection) {
+      builderSection.addEventListener("close-builder", closeBuilder);
+      builderSection.addEventListener("open-tip", (event) => {
+        const field = event.detail && event.detail.field;
+        const label = event.detail && event.detail.label;
+        if (tipsModal && typeof tipsModal.open === "function") {
+          tipsModal.open(field, label);
+        }
+      });
+      builderSection.addEventListener("builder-finished", (event) => {
+        openPreview(event.detail);
+      });
+      builderSection.addEventListener("preview-back", backToBuilder);
+      builderSection.addEventListener("preview-edit-step", (event) => {
+        backToBuilder();
+        const step = event.detail && event.detail.step;
+        if (step && typeof builderComponent.openStep === "function") {
+          builderComponent.openStep(step);
+        }
+      });
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("open") === "builder") {
+      openBuilder();
+    }
   </script>
 </body>
 </html>

@@ -16,11 +16,11 @@ export default class CvResourcesHeroComponent {
         <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-2 lg:gap-14">
           <div class="order-2 text-center lg:order-1 lg:text-left">
             <h2 class="text-3xl font-extrabold leading-tight text-[#111827] sm:text-4xl lg:text-5xl">
-              Ressources et assistance gratuites en ligne pour la rédaction de CV
+              Des conseils ciblés pour renforcer chaque section de votre CV
             </h2>
 
             <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-[#4b5563] sm:text-lg lg:mx-0">
-              Consultez nos exemples de CV et autres ressources carrière gratuits pour optimiser votre recherche d'emploi. Vous avez des questions ? Nous sommes là pour y répondre.
+              Trouvez des recommandations concrètes pour améliorer votre profil, vos expériences, vos formations et vos compétences.
             </p>
 
             <div class="mt-8">

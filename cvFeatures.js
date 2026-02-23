@@ -23,18 +23,20 @@ export default class CvFeaturesComponent {
               <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-[#dbeafe] text-[#2563eb]">
                 <i class="fa-solid fa-pen-ruler text-lg"></i>
               </div>
-              <h3 class="mb-3 text-xl font-bold text-[#111827]">Choisissez un modèle compatible avec les systèmes de suivi des candidatures (ATS).</h3>
+              <h3 class="mb-3 text-xl font-bold text-[#111827]">Conseils professionnels sur chaque champ du CV</h3>
               <p class="text-base leading-relaxed text-[#4b5563]">
-Commencez par utiliser des modèles de CV conçus par des professionnels et optimisés pour passer les systèmes de suivi des candidatures.              </p>
+                Chaque section est accompagnée de recommandations pratiques issues des bonnes pratiques RH.
+              </p>
             </article>
 
             <article class="text-center">
               <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-[#dbeafe] text-[#2563eb]">
                 <i class="fa-solid fa-file-lines text-lg"></i>
               </div>
-              <h3 class="mb-3 text-xl font-bold text-[#111827]">Importez votre CV ou ajoutez du contenu et améliorez-le</h3>
+              <h3 class="mb-3 text-xl font-bold text-[#111827]">Saisie guidée pour un contenu plus pertinent</h3>
               <p class="text-base leading-relaxed text-[#4b5563]">
-Rédigez rapidement votre CV, optimisez vos puces grâce aux suggestions               </p>
+                Remplissez vos informations rapidement avec un parcours clair qui vous aide à mieux structurer vos expériences.
+              </p>
             </article>
 
             <article class="text-center">
@@ -43,7 +45,8 @@ Rédigez rapidement votre CV, optimisez vos puces grâce aux suggestions        
               </div>
               <h3 class="mb-3 text-xl font-bold text-[#111827]">Téléchargez et commencez à postuler</h3>
               <p class="text-base leading-relaxed text-[#4b5563]">
-Exportez ou partagez votre CV immédiatement pour postuler plus rapidement.              </p>
+                Finalisez votre CV et exportez-le en PDF pour candidater immédiatement.
+              </p>
             </article>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default class CvFullFeaturesComponent {
             Créateur de CV professionnel
           </h2>
           <p class="mx-auto mt-5 max-w-3xl text-center text-base leading-relaxed text-[#4b5563] sm:text-lg">
-            hiprofile vous offre tout ce dont vous avez besoin pour créer un CV en ligne et franchir une nouvelle étape dans votre carrière.
+            Hiprofil vous offre tout ce dont vous avez besoin pour créer un CV en ligne et franchir une nouvelle étape dans votre carrière.
           </p>
 
           <div class="mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">

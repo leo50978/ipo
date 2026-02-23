@@ -14,13 +14,13 @@ export default class CvResourcesHeroAltComponent {
     this.root.innerHTML = `
       <section class="w-full border-t border-white/60 bg-[linear-gradient(180deg,#fff0f5_0%,#fffaf0_100%)] py-16 sm:py-20">
         <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 lg:grid-cols-2 lg:gap-14">
-          <div class="order-2 text-center lg:order-1 lg:text-left">
+          <div class="order-2 text-center lg:order-2 lg:text-left">
             <h2 class="text-3xl font-extrabold leading-tight text-[#111827] sm:text-4xl lg:text-5xl">
-              Ressources et assistance gratuites en ligne pour la rédaction de CV
+              Ressources et assistance en ligne pour la rédaction de CV
             </h2>
 
             <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-[#4b5563] sm:text-lg lg:mx-0">
-              Consultez nos exemples de CV et autres ressources carrière gratuits pour optimiser votre recherche d'emploi. Vous avez des questions ? Nous sommes là pour y répondre.
+              Accedez a des conseils professionnels pour chaque champ de votre CV, avec des ressources claires pour mieux presenter votre profil.
             </p>
 
             <div class="mt-8">
@@ -30,7 +30,7 @@ export default class CvResourcesHeroAltComponent {
             </div>
           </div>
 
-          <div class="order-1 flex justify-center lg:order-2 lg:justify-end">
+          <div class="order-1 flex justify-center lg:order-1 lg:justify-start">
             <img
               src="./nobg7.webp"
               alt="Ressources et assistance CV"
