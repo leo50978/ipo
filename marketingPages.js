@@ -1478,6 +1478,261 @@ const PAGE_CONFIGS = {
   }
 };
 
+const HERO_VIDEO_POOL = [
+  {
+    src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+    label: 'Demonstration guidee'
+  },
+  {
+    src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    label: 'Parcours visuel'
+  },
+  {
+    src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+    label: 'Vue rapide'
+  }
+];
+
+function hashValue(input = '') {
+  return String(input)
+    .split('')
+    .reduce((sum, char, index) => sum + (char.charCodeAt(0) * (index + 17)), 0);
+}
+
+function clampLabel(value, maxLength = 44) {
+  const normalized = String(value || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return '';
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+}
+
+function escapeSvgText(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function toSvgDataUri(svg) {
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function buildIllustrationSrc(theme, seed, eyebrow, title) {
+  const chip = escapeSvgText(clampLabel(eyebrow || 'Hiprofil', 20) || 'Hiprofil');
+  const heading = escapeSvgText(clampLabel(title || 'Contenu structure', 34) || 'Contenu structure');
+  const detail = escapeSvgText(clampLabel('Images visibles et sections plus demonstratives.', 44));
+  const layout = seed % 3;
+  const accentSoft = theme.accentSoft;
+  const line = theme.line;
+  const ink = theme.ink;
+  const accent = theme.accent;
+  const accentStrong = theme.accentStrong;
+  const panel = theme.panel;
+  const panelAlt = theme.panelAlt;
+
+  const layouts = [
+    `
+      <rect x="70" y="122" width="370" height="262" rx="28" fill="${panel}" stroke="${line}" />
+      <rect x="96" y="150" width="168" height="124" rx="20" fill="${accentSoft}" />
+      <rect x="284" y="150" width="126" height="18" rx="9" fill="${line}" />
+      <rect x="284" y="184" width="110" height="18" rx="9" fill="${line}" />
+      <rect x="284" y="218" width="90" height="18" rx="9" fill="${line}" />
+      <rect x="96" y="304" width="314" height="18" rx="9" fill="${line}" />
+      <rect x="96" y="336" width="234" height="18" rx="9" fill="${line}" />
+      <rect x="488" y="122" width="642" height="524" rx="36" fill="${panel}" stroke="${line}" />
+      <rect x="528" y="162" width="562" height="48" rx="24" fill="${accentSoft}" />
+      <rect x="528" y="240" width="320" height="212" rx="28" fill="${panelAlt}" />
+      <rect x="878" y="240" width="212" height="212" rx="28" fill="${accentStrong}" opacity="0.92" />
+      <rect x="528" y="486" width="562" height="24" rx="12" fill="${line}" />
+      <rect x="528" y="530" width="428" height="24" rx="12" fill="${line}" />
+    `,
+    `
+      <rect x="70" y="122" width="1060" height="524" rx="40" fill="${panel}" stroke="${line}" />
+      <rect x="110" y="162" width="226" height="196" rx="28" fill="${accentStrong}" opacity="0.92" />
+      <rect x="366" y="162" width="216" height="196" rx="28" fill="${panelAlt}" />
+      <rect x="612" y="162" width="216" height="196" rx="28" fill="${accentSoft}" />
+      <rect x="858" y="162" width="232" height="196" rx="28" fill="${panelAlt}" />
+      <rect x="110" y="406" width="980" height="42" rx="21" fill="${line}" />
+      <rect x="110" y="470" width="756" height="24" rx="12" fill="${line}" />
+      <rect x="110" y="516" width="624" height="24" rx="12" fill="${line}" />
+      <rect x="110" y="562" width="484" height="24" rx="12" fill="${line}" />
+    `,
+    `
+      <rect x="70" y="122" width="1060" height="524" rx="40" fill="${panel}" stroke="${line}" />
+      <rect x="110" y="162" width="368" height="444" rx="34" fill="${panelAlt}" />
+      <rect x="518" y="162" width="572" height="120" rx="28" fill="${accentSoft}" />
+      <rect x="518" y="314" width="270" height="292" rx="28" fill="${panelAlt}" />
+      <rect x="820" y="314" width="270" height="292" rx="28" fill="${accentStrong}" opacity="0.92" />
+      <rect x="150" y="202" width="288" height="22" rx="11" fill="${line}" />
+      <rect x="150" y="246" width="212" height="22" rx="11" fill="${line}" />
+      <rect x="150" y="304" width="288" height="208" rx="28" fill="${panel}" />
+      <rect x="150" y="544" width="198" height="22" rx="11" fill="${line}" />
+    `
+  ];
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-label="${heading}">
+      <defs>
+        <linearGradient id="bg-${seed}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${accentSoft}" />
+          <stop offset="100%" stop-color="#ffffff" />
+        </linearGradient>
+      </defs>
+      <rect width="1200" height="900" rx="48" fill="url(#bg-${seed})" />
+      <circle cx="1080" cy="126" r="96" fill="${accent}" opacity="0.12" />
+      <circle cx="126" cy="748" r="122" fill="${accent}" opacity="0.1" />
+      <rect x="70" y="70" width="206" height="44" rx="22" fill="${accentStrong}" opacity="0.96" />
+      <text x="173" y="98" fill="#ffffff" font-size="22" font-family="Arial, sans-serif" text-anchor="middle" font-weight="700">${chip}</text>
+      <text x="70" y="736" fill="${ink}" font-size="58" font-family="Arial, sans-serif" font-weight="800">${heading}</text>
+      <text x="70" y="784" fill="${ink}" opacity="0.62" font-size="26" font-family="Arial, sans-serif" font-weight="600">${detail}</text>
+      ${layouts[layout]}
+    </svg>
+  `;
+
+  return toSvgDataUri(svg);
+}
+
+function pickVideoAsset(seed) {
+  return HERO_VIDEO_POOL[seed % HERO_VIDEO_POOL.length];
+}
+
+function resolveSectionFocus(section) {
+  if (section?.intro?.title) return section.intro.title;
+  if (Array.isArray(section?.items) && section.items[0]?.title) return section.items[0].title;
+  if (Array.isArray(section?.rows) && Array.isArray(section.rows[0]) && section.rows[0][0]) return section.rows[0][0];
+  if (Array.isArray(section?.plans) && section.plans[0]?.name) return section.plans[0].name;
+  if (section?.left?.title) return section.left.title;
+  if (section?.right?.title) return section.right.title;
+  if (Array.isArray(section?.points) && section.points[0]) return section.points[0];
+  if (Array.isArray(section?.chips) && section.chips[0]) return section.chips[0];
+  if (Array.isArray(section?.columns) && section.columns[0]) return section.columns[0];
+  return 'Contenu detaille';
+}
+
+function createIllustration(theme, seed, eyebrow, title) {
+  return {
+    src: buildIllustrationSrc(theme, seed, eyebrow, title),
+    alt: `${clampLabel(eyebrow || 'Hiprofil', 20) || 'Hiprofil'} - ${clampLabel(title || 'Contenu', 34) || 'Contenu'}`
+  };
+}
+
+function renderIllustrationFrame(theme, media, options = {}) {
+  if (!media) return '';
+  const compact = Boolean(options.compact);
+  const title = clampLabel(options.title || '', 36);
+  const copy = clampLabel(options.copy || '', 70);
+  const wrapperClass = compact
+    ? 'rounded-[1.7rem] p-3'
+    : 'rounded-[2.1rem] p-4 md:p-5';
+  const imageMinHeight = compact ? '220px' : '280px';
+
+  return `
+    <figure class="border shadow-sm ${wrapperClass}" style="border-color:${theme.line}; background:${theme.panel};">
+      <div class="overflow-hidden rounded-[1.35rem] border" style="border-color:${theme.line};">
+        <img src="${media.src}" alt="${media.alt}" class="block h-full w-full object-cover" style="min-height:${imageMinHeight};">
+      </div>
+      ${title ? `<figcaption class="mt-4"><p class="text-sm font-semibold leading-6">${title}</p>${copy ? `<p class="mt-2 text-sm leading-6" style="color:${theme.muted};">${copy}</p>` : ''}</figcaption>` : ''}
+    </figure>
+  `;
+}
+
+function renderVideoFrame(theme, videoAsset, poster, title, copy, options = {}) {
+  if (!videoAsset) return '';
+  const compact = Boolean(options.compact);
+  const wrapperClass = compact
+    ? 'rounded-[1.7rem] p-3'
+    : 'rounded-[2.1rem] p-4 md:p-5';
+  const videoMinHeight = compact ? '220px' : '280px';
+
+  return `
+    <div class="border shadow-sm ${wrapperClass}" style="border-color:${theme.line}; background:linear-gradient(180deg, ${theme.panel} 0%, ${theme.panelAlt} 100%);">
+      <div class="relative overflow-hidden rounded-[1.35rem] border" style="border-color:${theme.line};">
+        <video
+          class="block h-full w-full object-cover"
+          autoplay
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          poster="${poster}"
+          style="min-height:${videoMinHeight};"
+        >
+          <source src="${videoAsset.src}" type="video/mp4">
+        </video>
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-24" style="background:linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,0.72) 100%);"></div>
+        <div class="pointer-events-none absolute left-3 top-3 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white" style="background:rgba(15,23,42,0.55);">
+          ${videoAsset.label}
+        </div>
+      </div>
+      <div class="mt-4">
+        <p class="text-sm font-semibold leading-6">${clampLabel(title || 'Video de contexte', 34)}</p>
+        <p class="mt-2 text-sm leading-6" style="color:${theme.muted};">${clampLabel(copy || 'Une demonstration visuelle renforce la lecture de la page.', 78)}</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderHeroMedia(config, options = {}) {
+  const { theme, hero } = config;
+  const seedBase = hashValue(`${config.pageKey || config.title}:hero`);
+  const posterVisual = createIllustration(theme, seedBase, hero.eyebrow, hero.title);
+  const sideVisualA = createIllustration(theme, seedBase + 1, hero.eyebrow, hero.copy || hero.title);
+  const sideVisualB = createIllustration(theme, seedBase + 2, 'Hiprofil', (hero.metrics && hero.metrics[0] && hero.metrics[0][1]) || 'Lecture rapide');
+  const videoAsset = pickVideoAsset(seedBase);
+  const compact = Boolean(options.compact);
+  const gridClass = compact ? 'max-w-5xl mx-auto mt-10 grid gap-4 md:grid-cols-[1.2fr_0.8fr]' : 'grid gap-4';
+
+  return `
+    <div class="${gridClass}">
+      <div>
+        ${renderVideoFrame(theme, videoAsset, posterVisual.src, hero.title, hero.copy, { compact })}
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-1">
+        ${renderIllustrationFrame(theme, sideVisualA, {
+          compact: true,
+          title: hero.eyebrow || 'Contenu visible',
+          copy: 'Des visuels plus explicites rendent la page plus concrete.'
+        })}
+        ${renderIllustrationFrame(theme, sideVisualB, {
+          compact: true,
+          title: 'Mise en situation',
+          copy: 'Le visiteur comprend mieux le service avec un support graphique immediat.'
+        })}
+      </div>
+    </div>
+  `;
+}
+
+function renderSectionMedia(config, section, sectionIndex = 0) {
+  const { theme } = config;
+  const focus = resolveSectionFocus(section);
+  const seedBase = hashValue(`${config.pageKey || config.title}:${section.type}:${sectionIndex}`);
+  const primary = createIllustration(theme, seedBase, section.intro?.eyebrow || 'Section', section.intro?.title || focus);
+  const secondary = createIllustration(theme, seedBase + 1, 'Detail', focus);
+
+  return `
+    <div class="mt-8 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+      ${renderIllustrationFrame(theme, primary, {
+        title: section.intro?.title || focus,
+        copy: section.intro?.copy || 'Chaque section expose maintenant un visuel explicite pour renforcer la comprehension.'
+      })}
+      <div class="grid gap-4">
+        ${renderIllustrationFrame(theme, secondary, {
+          compact: true,
+          title: focus,
+          copy: 'Le contenu gagne en relief avec une image claire juste avant les details.'
+        })}
+        <div class="rounded-[1.9rem] border p-5 shadow-sm" style="border-color:${theme.line}; background:${theme.panelAlt};">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">Lecture visuelle</p>
+          <p class="mt-3 text-sm leading-7" style="color:${theme.muted};">Cette zone sert de repere visuel constant: le visiteur identifie plus vite le sujet de la section avant meme de lire tous les paragraphes.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function joinItems(items, renderItem) {
   return items.map((item, index) => renderItem(item, index)).join('');
 }
@@ -1610,6 +1865,7 @@ function renderSplitHero(config) {
           ${renderMetricCards(theme, hero.metrics)}
         </div>
         <div class="grid gap-4">
+          ${renderHeroMedia(config)}
           ${joinItems(hero.cards || [], (card, index) => `
             <article class="rounded-[2rem] border p-6 shadow-sm ${index === 0 ? '' : ''}" style="border-color:${theme.line}; background:${index === 1 ? theme.panelAlt : theme.panel};">
               <p class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">${card.eyebrow}</p>
@@ -1635,19 +1891,22 @@ function renderCommandHero(config) {
           ${renderActionRow(theme, hero.actions)}
           ${renderMetricCards(theme, hero.metrics)}
         </div>
-        <div class="rounded-[2.4rem] border p-7 shadow-sm" style="border-color:${theme.line}; background:linear-gradient(180deg, ${theme.panel} 0%, ${theme.accentSoft} 160%);">
-          <p class="text-xs font-semibold uppercase tracking-[0.2em]" style="color:${theme.accent};">${panel.eyebrow}</p>
-          <h3 class="mt-4 text-2xl font-extrabold leading-tight">${panel.title}</h3>
-          <p class="mt-4 text-sm leading-7" style="color:${theme.muted};">${panel.copy}</p>
-          <div class="mt-6 grid gap-3">
-            ${joinItems(panel.points || [], (point, index) => `
-              <div class="rounded-2xl border px-4 py-4" style="border-color:${theme.line}; background:${index % 2 === 0 ? theme.panel : 'rgba(255,255,255,0.86)'};">
-                <div class="flex gap-3">
-                  <span class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">0${index + 1}</span>
-                  <p class="text-sm leading-7" style="color:${theme.muted};">${point}</p>
+        <div class="grid gap-4">
+          ${renderHeroMedia(config)}
+          <div class="rounded-[2.4rem] border p-7 shadow-sm" style="border-color:${theme.line}; background:linear-gradient(180deg, ${theme.panel} 0%, ${theme.accentSoft} 160%);">
+            <p class="text-xs font-semibold uppercase tracking-[0.2em]" style="color:${theme.accent};">${panel.eyebrow}</p>
+            <h3 class="mt-4 text-2xl font-extrabold leading-tight">${panel.title}</h3>
+            <p class="mt-4 text-sm leading-7" style="color:${theme.muted};">${panel.copy}</p>
+            <div class="mt-6 grid gap-3">
+              ${joinItems(panel.points || [], (point, index) => `
+                <div class="rounded-2xl border px-4 py-4" style="border-color:${theme.line}; background:${index % 2 === 0 ? theme.panel : 'rgba(255,255,255,0.86)'};">
+                  <div class="flex gap-3">
+                    <span class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">0${index + 1}</span>
+                    <p class="text-sm leading-7" style="color:${theme.muted};">${point}</p>
+                  </div>
                 </div>
-              </div>
-            `)}
+              `)}
+            </div>
           </div>
         </div>
       </div>
@@ -1667,6 +1926,7 @@ function renderSpotlightHero(config) {
           ${renderActionRow(theme, hero.actions)}
         </div>
         <div class="grid gap-5">
+          ${renderHeroMedia(config)}
           <article class="rounded-[2.4rem] border p-7 shadow-sm" style="border-color:${theme.line}; background:${theme.panel};">
             <p class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">${feature.eyebrow}</p>
             <h3 class="mt-4 text-3xl font-extrabold leading-tight">${feature.title}</h3>
@@ -1696,15 +1956,18 @@ function renderDirectoryHero(config) {
             ${renderIntro(theme, hero)}
             ${renderActionRow(theme, hero.actions)}
           </div>
-          <div class="grid gap-4 md:grid-cols-3">
-            ${joinItems(hero.cards || [], (card, index) => `
-              <article class="rounded-[2rem] border p-6 shadow-sm" style="border-color:${theme.line}; background:${index === 1 ? theme.panelAlt : theme.panel};">
-                <p class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">${card.eyebrow}</p>
-                <h3 class="mt-4 text-xl font-bold leading-tight">${card.title}</h3>
-                <p class="mt-3 text-sm leading-7" style="color:${theme.muted};">${card.copy}</p>
-                ${card.meta ? `<p class="mt-4 text-xs font-semibold uppercase tracking-[0.16em]" style="color:${theme.muted};">${card.meta}</p>` : ''}
-              </article>
-            `)}
+          <div class="grid gap-4">
+            ${renderHeroMedia(config)}
+            <div class="grid gap-4 md:grid-cols-3">
+              ${joinItems(hero.cards || [], (card, index) => `
+                <article class="rounded-[2rem] border p-6 shadow-sm" style="border-color:${theme.line}; background:${index === 1 ? theme.panelAlt : theme.panel};">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${theme.accent};">${card.eyebrow}</p>
+                  <h3 class="mt-4 text-xl font-bold leading-tight">${card.title}</h3>
+                  <p class="mt-3 text-sm leading-7" style="color:${theme.muted};">${card.copy}</p>
+                  ${card.meta ? `<p class="mt-4 text-xs font-semibold uppercase tracking-[0.16em]" style="color:${theme.muted};">${card.meta}</p>` : ''}
+                </article>
+              `)}
+            </div>
           </div>
         </div>
       </div>
@@ -1719,6 +1982,7 @@ function renderManifestoHero(config) {
       <div class="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
         ${renderIntro(theme, hero, 'center')}
         ${renderActionRow(theme, hero.actions, 'center')}
+        ${renderHeroMedia(config, { compact: true })}
         <div class="mx-auto mt-10 grid max-w-5xl gap-4 md:grid-cols-4">
           ${joinItems(hero.pillars || [], (pillar, index) => `
             <div class="rounded-[1.8rem] border px-5 py-5 text-center" style="border-color:${theme.line}; background:${index % 2 === 0 ? theme.panel : theme.panelAlt};">
@@ -1749,7 +2013,7 @@ function resolveSectionSurface(theme, section) {
   return { className: '', style: '' };
 }
 
-function renderSection(config, section) {
+function renderSection(config, section, sectionIndex = 0) {
   const surface = resolveSectionSurface(config.theme, section);
   const renderer = SECTION_RENDERERS[section.type];
 
@@ -1759,6 +2023,7 @@ function renderSection(config, section) {
     <section class="${surface.className}" style="${surface.style}">
       <div class="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-16">
         ${renderIntro(config.theme, section.intro)}
+        ${renderSectionMedia(config, section, sectionIndex)}
         ${renderer(config, section)}
       </div>
     </section>
@@ -2000,7 +2265,7 @@ function renderPageShell(config) {
           <div id="sierra-header-root"></div>
           <main>
             ${renderHero(config)}
-            ${joinItems(config.sections || [], (section) => renderSection(config, section))}
+            ${joinItems(config.sections || [], (section, index) => renderSection(config, section, index))}
           </main>
           <div id="sierra-cv-cta-footer-root"></div>
         </div>
@@ -2086,9 +2351,10 @@ export function bootstrapMarketingPage(pageKey) {
     return;
   }
 
-  document.title = config.title;
-  applyThemeVariables(config.theme);
-  pageRoot.innerHTML = renderPageShell(config);
+  const renderConfig = { ...config, pageKey };
+  document.title = renderConfig.title;
+  applyThemeVariables(renderConfig.theme);
+  pageRoot.innerHTML = renderPageShell(renderConfig);
 
   const authApi = initAuth();
   initAccountPanel(authApi);
