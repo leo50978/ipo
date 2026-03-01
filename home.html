@@ -39,6 +39,7 @@
   
   <div id="sierra-header-root"></div>
   <div id="sierra-hero-root"></div>
+  <div id="sierra-cv-price-notice-root"></div>
   
   <div id="sierra-cv-features-root"></div>
   <div id="sierra-cv-hero-root"></div>
@@ -55,32 +56,87 @@
   <script type="module">
     import HeaderComponent from "./header.js";
     import HeroComponent from "./hero.js";
-    import "./cvHero.js";
-    import "./cvFeatures.js";
-    import "./cvExamplesHero.js";
-    import "./cvMainHero.js";
-    import "./cvFullFeatures.js";
-    import "./cvEasyHero.js";
-    import "./cvResourcesHero.js";
-    import "./cvResourcesHeroAlt.js";
-    import "./cvResourcesHeroV2.js";
-    import "./cvStepsFaq.js";
-    import "./cvCtaFooter.js";
-    import "./nobgMotion.js";
-    import "./sectionBgMotion.js";
-    import "./scrollSceneMotion.js";
-    import "./imageScrollMotion.js";
     import { initAuth } from "./auth.js";
+    import { initAccountPanel } from "./accountPanel.js";
+    import { initCvAccessFlow } from "./cvAccessFlow.js";
+    import { initDepositFlow } from "./depositFlow.js";
+
+    const sectionModulesCritical = [
+      "./cvPriceNotice.js",
+      "./cvHero.js",
+      "./cvFeatures.js",
+      "./cvExamplesHero.js"
+    ];
+    const sectionModulesDeferred = [
+      "./cvMainHero.js",
+      "./cvFullFeatures.js",
+      "./cvEasyHero.js",
+      "./cvResourcesHero.js",
+      "./cvResourcesHeroAlt.js",
+      "./cvResourcesHeroV2.js",
+      "./cvStepsFaq.js",
+      "./cvCtaFooter.js"
+    ];
+    const motionModulesDeferred = [
+      "./nobgMotion.js",
+      "./sectionBgMotion.js",
+      "./scrollSceneMotion.js",
+      "./imageScrollMotion.js"
+    ];
+
+    const loadModules = (paths) => Promise.all(paths.map((path) => import(path)));
+    const scheduleIdle = (task, timeout = 1200) => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => task(), { timeout });
+        return;
+      }
+      window.setTimeout(task, 80);
+    };
+    const appendResourceHint = (rel, href, options = {}) => {
+      const absoluteHref = new URL(href, window.location.href).href;
+      if (document.querySelector(`link[rel="${rel}"][href="${absoluteHref}"]`)) return;
+      const link = document.createElement("link");
+      link.rel = rel;
+      link.href = absoluteHref;
+      if (options.as) link.as = options.as;
+      document.head.appendChild(link);
+    };
+
+    let builderNavigationPrefetched = false;
+    const prefetchBuilderNavigation = () => {
+      if (builderNavigationPrefetched) return;
+      builderNavigationPrefetched = true;
+      appendResourceHint("prefetch", "./index.html?open=builder");
+      appendResourceHint("modulepreload", "./buildercv.js");
+      appendResourceHint("modulepreload", "./previsualisation.js");
+      appendResourceHint("modulepreload", "./tips.js");
+    };
 
     const authApi = initAuth();
+    initAccountPanel(authApi);
+    initCvAccessFlow(authApi);
+    initDepositFlow(authApi);
     new HeaderComponent("sierra-header-root", { authApi });
     new HeroComponent("sierra-hero-root");
+
+    loadModules(sectionModulesCritical).catch((error) => {
+      console.error("Echec chargement sections critiques:", error);
+    });
+    scheduleIdle(() => {
+      loadModules(sectionModulesDeferred).catch((error) => {
+        console.error("Echec chargement sections differees:", error);
+      });
+    }, 900);
+    scheduleIdle(() => {
+      loadModules(motionModulesDeferred).catch((error) => {
+        console.error("Echec chargement animations differees:", error);
+      });
+    }, 1800);
 
     const syncAuthButtonsVisibility = (user) => {
       const isConnected = Boolean(user);
       const transformSelectors = [
-        "[data-auth-mode]",
-        '[data-action="hero-google-login"]'
+        "[data-auth-mode]"
       ];
 
       document.querySelectorAll(transformSelectors.join(",")).forEach((node) => {
@@ -96,7 +152,7 @@
         }
 
         if (isConnected) {
-          node.textContent = "Commencer mon cv gratuit";
+          node.textContent = "Commencer mon CV";
           node.removeAttribute("data-auth-mode");
           node.removeAttribute("data-action");
           node.setAttribute("data-cv-start", "1");
@@ -133,9 +189,19 @@
       syncAuthButtonsVisibility(event?.detail?.user || null);
     });
 
+    const maybePrefetchBuilderNavigation = (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest("[data-cv-start]")) return;
+      prefetchBuilderNavigation();
+    };
+    document.addEventListener("pointerover", maybePrefetchBuilderNavigation, { passive: true });
+    document.addEventListener("pointerdown", maybePrefetchBuilderNavigation, { passive: true });
+    document.addEventListener("focusin", maybePrefetchBuilderNavigation);
+
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-cv-start]")) {
-        window.location.href = "./index.html?open=builder";
+        prefetchBuilderNavigation();
+        window.dispatchEvent(new CustomEvent("app:request-cv-start"));
         return;
       }
       const trigger = event.target.closest("[data-auth-mode]");

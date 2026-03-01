@@ -4,45 +4,20 @@ class BuilderCV extends HTMLElement {
     constructor() {
         super();
         this.initialized = false;
-        this.profileMinChars = 120;
-        this.profileMaxChars = 400;
-        this.experienceDescriptionMaxChars = 200;
-        this.charLimits = {
-            firstname: 30,
-            middlename: 30,
-            lastname: 40,
-            designation: 20,
-            email: 80,
-            phone: 25,
-            addressNumber: 12,
-            addressStreet: 80,
-            addressPostal: 12,
-            addressCity: 40,
-            addressCountry: 40,
-            interest: 55,
-            languageName: 40,
-            toolName: 45,
-            educationDegree: 90,
-            educationSchool: 90,
-            educationAddress: 110,
-            experienceTitle: 70,
-            experienceOrganization: 80,
-            experienceLocation: 50
-        };
         this.fieldSteps = [
             { name: 'firstname', label: 'Prenom', type: 'text', hint: 'Ton prenom.' },
             { name: 'middlename', label: 'Deuxieme prenom', type: 'text', hint: 'Optionnel.' },
             { name: 'lastname', label: 'Nom', type: 'text', hint: 'Ton nom de famille.' },
             { name: 'designation', label: 'Metier', type: 'text', hint: 'Ex: Frontend Developer.' },
             { name: 'email', label: 'Email', type: 'email', hint: 'Ex: toi@email.com' },
-            { name: 'phones', label: 'Numeros de telephone', type: 'multi-phone', hint: 'Ajoute 1 ou 2 numeros de telephone.' },
+            { name: 'phones', label: 'Numeros de telephone', type: 'multi-phone', hint: 'Ajoute un ou plusieurs numeros de telephone.' },
             { name: 'address', label: 'Adresse complete', type: 'address-fields', hint: 'Renseigne chaque partie de ton adresse.' },
-            { name: 'summary', label: 'Resume', type: 'textarea', hint: '3 a 5 lignes sur ton profil. Minimum 120 caracteres, maximum 400.' },
+            { name: 'summary', label: 'Resume', type: 'textarea', hint: 'Decris ton profil avec le niveau de detail dont tu as besoin.' },
             { name: 'image', label: 'Photo de profil', type: 'file', accept: 'image/*', hint: 'Format JPG ou PNG.' },
-            { name: 'experiences', label: 'Experiences professionnelles', type: 'multi-experience', hint: 'Ajoute une ou plusieurs experiences. Description limitee a 200 caracteres.' },
+            { name: 'experiences', label: 'Experiences professionnelles', type: 'multi-experience', hint: 'Ajoute autant d experiences que necessaire avec une description complete.' },
             { name: 'educations', label: 'Formations', type: 'multi-education', hint: 'Ajoute chaque formation avec date debut/fin, nom de formation, ecole et adresse de lecole.' },
-            { name: 'languages', label: 'Langues et niveau', type: 'multi-language', hint: 'Ajoute les langues que tu maitrises avec un niveau: Bien ou Tres bien.' },
-            { name: 'tools', label: 'Logiciels ou materiels utilises', type: 'multi-tool', hint: 'Ajoute plusieurs elements avec type (logiciel/materiel) et niveau (amateur/intermediaire/expert).' },
+            { name: 'languages', label: 'Langues et niveau', type: 'multi-language', hint: 'Ajoute toutes les langues que tu veux.' },
+            { name: 'tools', label: 'Logiciels ou materiels utilises', type: 'multi-tool', hint: 'Ajoute autant d elements que necessaire.' },
             { name: 'interests', label: 'Centres d interet', type: 'multi-interest', hint: 'Ajoute autant de centres d interet que tu veux avec le bouton +.' }
         ];
         this.steps = this.fieldSteps.map((item) => item.name);
@@ -63,14 +38,48 @@ class BuilderCV extends HTMLElement {
     }
 
     async ensureDependencies() {
-        await Promise.all([
-            this.loadScript('https://cdn.tailwindcss.com', 'cvb-tailwind'),
-            this.loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css', 'cvb-fa')
-        ]);
+        const jobs = [
+            this.loadScript('https://cdn.tailwindcss.com', 'cvb-tailwind')
+        ];
+        if (!this.hasStylesheetContaining('font-awesome')) {
+            jobs.push(this.loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css', 'cvb-fa'));
+        }
+        await Promise.all(jobs);
+    }
+
+    normalizeUrl(value) {
+        const raw = String(value || '').trim();
+        if (!raw) return '';
+        try {
+            return new URL(raw, window.location.href).href;
+        } catch (error) {
+            return raw;
+        }
+    }
+
+    hasScriptWithSrc(src) {
+        const expected = this.normalizeUrl(src);
+        if (!expected) return false;
+        return Array.from(document.querySelectorAll('script[src]')).some((node) => this.normalizeUrl(node.getAttribute('src')) === expected);
+    }
+
+    hasStylesheetWithHref(href) {
+        const expected = this.normalizeUrl(href);
+        if (!expected) return false;
+        return Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).some((node) => this.normalizeUrl(node.getAttribute('href')) === expected);
+    }
+
+    hasStylesheetContaining(fragment) {
+        const needle = String(fragment || '').trim().toLowerCase();
+        if (!needle) return false;
+        return Array.from(document.querySelectorAll('link[rel="stylesheet"][href]')).some((node) => {
+            const href = String(node.getAttribute('href') || '').toLowerCase();
+            return href.includes(needle);
+        });
     }
 
     loadScript(src, marker) {
-        if (document.querySelector(`script[data-${marker}]`)) return Promise.resolve();
+        if (document.querySelector(`script[data-${marker}]`) || this.hasScriptWithSrc(src)) return Promise.resolve();
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = src;
@@ -82,7 +91,7 @@ class BuilderCV extends HTMLElement {
     }
 
     loadStylesheet(href, marker) {
-        if (document.querySelector(`link[data-${marker}]`)) return Promise.resolve();
+        if (document.querySelector(`link[data-${marker}]`) || this.hasStylesheetWithHref(href)) return Promise.resolve();
         return new Promise((resolve, reject) => {
             const link = document.createElement('link');
             link.rel = 'stylesheet';
@@ -141,11 +150,6 @@ class BuilderCV extends HTMLElement {
 
     renderQuestionStep(step, index) {
         const inputControl = this.renderInputControl(step);
-        const quickPreviewBtn = index === 0
-            ? `<button type="button" class="cvb-btn cvb-btn-muted inline-flex min-h-12 items-center gap-2 rounded-xl bg-slate-200 px-4 py-3 font-bold text-slate-900 hover:bg-slate-300" data-action="quick-preview">
-                    <i class="fa-solid fa-eye"></i>Previsualisation directe
-               </button>`
-            : '';
 
         return `
             <section class="cvb-step hidden h-full items-start justify-center overflow-y-auto py-4" data-step="${step.name}">
@@ -171,7 +175,6 @@ class BuilderCV extends HTMLElement {
                         </span>
                         <span class="mb-5 block text-base text-slate-600">${step.hint}</span>
                         ${inputControl}
-                        ${step.name === 'summary' ? `<p class="mt-2 text-sm text-slate-500">Caractères: <span data-summary-count>0</span> / ${this.profileMaxChars}</p>` : ''}
                         <p class="cvb-error mt-2 min-h-[1.1rem] text-sm text-red-700" data-step-error></p>
                     </label>
 
@@ -180,10 +183,6 @@ class BuilderCV extends HTMLElement {
                             <i class="fa-solid fa-arrow-left"></i>Precedent
                         </button>
                         <div class="flex items-center gap-2">
-                            <button type="button" class="cvb-btn cvb-btn-preview hidden inline-flex min-h-12 items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 font-bold text-white hover:bg-slate-800" data-action="go-preview">
-                                <i class="fa-solid fa-file-lines"></i>Aller a la previsualisation
-                            </button>
-                            ${quickPreviewBtn}
                             <button type="button" class="cvb-btn cvb-btn-primary inline-flex min-h-12 items-center gap-2 rounded-xl bg-sky-700 px-4 py-3 font-bold text-white hover:bg-sky-800" data-action="next">
                                 Suivant<i class="fa-solid fa-arrow-right"></i>
                             </button>
@@ -196,19 +195,15 @@ class BuilderCV extends HTMLElement {
 
     renderInputControl(step) {
         if (step.type === 'textarea') {
-            const attrs = step.name === 'summary'
-                ? ` minlength="${this.profileMinChars}" maxlength="${this.profileMaxChars}"`
-                : '';
-            return `<textarea name="${step.name}" class="cvb-textarea min-h-[140px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" placeholder="Saisis ${step.label.toLowerCase()}"${attrs}></textarea>`;
+            return `<textarea name="${step.name}" class="cvb-textarea min-h-[140px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" placeholder="Saisis ${step.label.toLowerCase()}"></textarea>`;
         }
 
         if (step.type === 'multi-phone') {
             return `
-                <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="phones" data-max="2">
+                <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="phones">
                     ${this.repeatPhoneItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Maximum 2 numeros.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="phones" aria-label="Ajouter un numero"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -216,11 +211,10 @@ class BuilderCV extends HTMLElement {
 
         if (step.type === 'multi-interest') {
             return `
-                <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="interests" data-max="3">
+                <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="interests">
                     ${this.repeatInterestItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Maximum 3 centres d interet.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="interests" aria-label="Ajouter un interet"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -231,8 +225,7 @@ class BuilderCV extends HTMLElement {
                 <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="languages">
                     ${this.repeatLanguageItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Niveau disponible: Bien ou Tres bien.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="languages" aria-label="Ajouter une langue"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -243,8 +236,7 @@ class BuilderCV extends HTMLElement {
                 <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="tools">
                     ${this.repeatToolItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Type: Logiciel ou Materiel. Niveau: Amateur, Intermediaire, Expert.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="tools" aria-label="Ajouter un outil"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -255,8 +247,7 @@ class BuilderCV extends HTMLElement {
                 <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="educations">
                     ${this.repeatEducationItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Ajoute autant de formations que necessaire.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="educations" aria-label="Ajouter une formation"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -267,8 +258,7 @@ class BuilderCV extends HTMLElement {
                 <div class="cvb-repeat-wrap grid gap-3" data-repeat-group="experiences">
                     ${this.repeatExperienceItem()}
                 </div>
-                <div class="cvb-repeat-actions mt-2 flex items-center justify-between gap-2">
-                    <span class="text-sm text-slate-500">Description max ${this.experienceDescriptionMaxChars} caracteres.</span>
+                <div class="cvb-repeat-actions mt-2 flex items-center justify-end gap-2">
                     <button type="button" class="cvb-add inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-700 text-white hover:bg-sky-800" data-action="add-repeat" data-group="experiences" aria-label="Ajouter une experience"><i class="fa-solid fa-plus"></i></button>
                 </div>
             `;
@@ -290,9 +280,7 @@ class BuilderCV extends HTMLElement {
             `;
         }
 
-        const inputMaxLength = this.charLimits[step.name];
-        const maxLengthAttr = Number.isFinite(inputMaxLength) ? ` maxlength="${inputMaxLength}"` : '';
-        return `<input name="${step.name}" type="${step.type}" ${step.accept ? `accept="${step.accept}"` : ''}${maxLengthAttr} class="cvb-input min-h-[52px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" placeholder="${step.type === 'file' ? '' : `Saisis ${step.label.toLowerCase()}`}" />`;
+        return `<input name="${step.name}" type="${step.type}" ${step.accept ? `accept="${step.accept}"` : ''} class="cvb-input min-h-[52px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" placeholder="${step.type === 'file' ? '' : `Saisis ${step.label.toLowerCase()}`}" />`;
     }
 
     repeatPhoneItem() {
@@ -375,7 +363,7 @@ class BuilderCV extends HTMLElement {
                     <input type="date" class="cvb-input min-h-[52px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" data-key="start_date" placeholder="Date debut">
                     <input type="date" class="cvb-input min-h-[52px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" data-key="end_date" placeholder="Date fin">
                 </div>
-                <textarea class="cvb-textarea min-h-[120px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" data-key="description" maxlength="${this.experienceDescriptionMaxChars}" placeholder="Description experience (missions, resultats, responsabilites)"></textarea>
+                <textarea class="cvb-textarea min-h-[120px] w-full rounded-xl border border-slate-400 px-4 py-3 text-base outline-none focus:border-sky-600 focus:ring-4 focus:ring-sky-200/70" data-key="description" placeholder="Description experience (missions, resultats, responsabilites)"></textarea>
                 <button type="button" class="cvb-btn-icon inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 hover:bg-slate-100" data-action="remove-repeat" aria-label="Supprimer"><i class="fa-solid fa-xmark"></i></button>
             </div>
         `;
@@ -386,12 +374,6 @@ class BuilderCV extends HTMLElement {
             if (event.target.name === 'image') {
                 this.updateImageData(event.target.files[0]);
             }
-        });
-
-        this.addEventListener('input', () => {
-            const summary = this.querySelector('[name="summary"]');
-            const counter = this.querySelector('[data-summary-count]');
-            if (summary && counter) counter.textContent = String(summary.value.length);
         });
 
         this.addEventListener('click', (event) => {
@@ -422,25 +404,6 @@ class BuilderCV extends HTMLElement {
             if (event.target.closest('[data-action="close-builder"]')) {
                 playUiSound('close');
                 this.dispatchEvent(new CustomEvent('close-builder', { bubbles: true }));
-                return;
-            }
-
-            if (event.target.closest('[data-action="quick-preview"]')) {
-                if (!this.validateCurrentStep()) return;
-                playUiSound('finish');
-                this.dispatchEvent(new CustomEvent('builder-finished', {
-                    bubbles: true,
-                    detail: this.collectData()
-                }));
-                return;
-            }
-
-            if (event.target.closest('[data-action="go-preview"]')) {
-                playUiSound('finish');
-                this.dispatchEvent(new CustomEvent('builder-finished', {
-                    bubbles: true,
-                    detail: this.collectData()
-                }));
                 return;
             }
 
@@ -482,9 +445,6 @@ class BuilderCV extends HTMLElement {
         const container = this.querySelector(`[data-repeat-group="${group}"]`);
         if (!container) return;
 
-        const max = Number(container.getAttribute('data-max') || '0');
-        if (max && container.children.length >= max) return;
-
         let template = '';
         if (group === 'phones') template = this.repeatPhoneItem();
         if (group === 'interests') template = this.repeatInterestItem();
@@ -514,47 +474,6 @@ class BuilderCV extends HTMLElement {
         const error = step.querySelector('[data-step-error]');
         if (!error) return true;
         error.textContent = '';
-
-        if (stepName === 'summary') {
-            const summary = step.querySelector('[name="summary"]');
-            const length = summary ? summary.value.trim().length : 0;
-            if (length < this.profileMinChars || length > this.profileMaxChars) {
-                error.textContent = `Le profil doit contenir entre ${this.profileMinChars} et ${this.profileMaxChars} caracteres.`;
-                return false;
-            }
-        }
-
-        if (stepName === 'designation') {
-            const designation = step.querySelector('[name="designation"]');
-            const length = designation ? designation.value.trim().length : 0;
-            if (length > this.charLimits.designation) {
-                error.textContent = `Le metier doit contenir au maximum ${this.charLimits.designation} caracteres.`;
-                return false;
-            }
-        }
-
-        if (stepName === 'experiences') {
-            const rows = Array.from(step.querySelectorAll('[data-repeat-group="experiences"] .cvb-repeat-item'));
-            for (const row of rows) {
-                const description = (row.querySelector('[data-key="description"]')?.value || '').trim();
-                if (description.length > this.experienceDescriptionMaxChars) {
-                    error.textContent = `Chaque description d experience doit contenir au maximum ${this.experienceDescriptionMaxChars} caracteres.`;
-                    return false;
-                }
-            }
-        }
-
-        if (stepName === 'tools') {
-            const types = Array.from(step.querySelectorAll('[data-repeat-group="tools"] .cvb-repeat-item [data-key="type"]'))
-                .map((el) => (el.value || '').trim())
-                .filter(Boolean);
-            const uniqueTypes = Array.from(new Set(types));
-            if (uniqueTypes.length > 1) {
-                error.textContent = 'Choisis un seul type: soit Logiciel, soit Materiel.';
-                return false;
-            }
-        }
-
         return true;
     }
 
@@ -572,7 +491,6 @@ class BuilderCV extends HTMLElement {
             const nextBtn = step.querySelector('[data-action="next"]');
             const indicator = step.querySelector('[data-step-indicator]');
             const progressFill = step.querySelector('[data-progress-fill]');
-            const goPreviewBtn = step.querySelector('[data-action="go-preview"]');
 
             if (prevBtn) {
                 prevBtn.disabled = this.currentStep === 0;
@@ -585,10 +503,6 @@ class BuilderCV extends HTMLElement {
                     ? 'Terminer <i class="fa-solid fa-check"></i>'
                     : 'Suivant<i class="fa-solid fa-arrow-right"></i>';
             }
-            if (goPreviewBtn) {
-                goPreviewBtn.classList.toggle('hidden', !this.isCompleted);
-            }
-
             if (indicator) indicator.textContent = `Etape ${this.currentStep + 1} sur ${total}`;
             if (progressFill) progressFill.style.width = `${progress}%`;
         });
@@ -604,15 +518,8 @@ class BuilderCV extends HTMLElement {
 
     refreshRepeatControls() {
         this.querySelectorAll('[data-action="add-repeat"]').forEach((button) => {
-            const group = button.getAttribute('data-group');
-            const container = group ? this.querySelector(`[data-repeat-group="${group}"]`) : null;
-            if (!container) return;
-
-            const max = Number(container.getAttribute('data-max') || '0');
-            const shouldDisable = max > 0 && container.children.length >= max;
-            button.disabled = shouldDisable;
-            button.classList.toggle('opacity-50', shouldDisable);
-            button.classList.toggle('cursor-not-allowed', shouldDisable);
+            button.disabled = false;
+            button.classList.remove('opacity-50', 'cursor-not-allowed');
         });
     }
 

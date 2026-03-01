@@ -26,7 +26,6 @@ export default class HeroComponent {
     this.injectStyles();
     this.render();
     this.bindTilt();
-    this.bindAuthCta();
     this.startTitleAnimation();
   }
 
@@ -109,16 +108,15 @@ export default class HeroComponent {
           margin: 0 auto;
         }
 
-        .hero-google-btn {
+        .hero-cta-btn {
           margin-top: 1rem;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 0.55rem;
           border-radius: 0.85rem;
-          border: 1px solid #d5e3ff;
-          background: #ffffff;
-          color: #0b2f66;
+          border: 1px solid #174ea6;
+          background: #174ea6;
+          color: #ffffff;
           font-weight: 700;
           font-size: 0.95rem;
           padding: 0.72rem 1rem;
@@ -126,13 +124,14 @@ export default class HeroComponent {
           transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
         }
 
-        .hero-google-btn:hover {
-          border-color: #2f6ee5;
-          box-shadow: 0 12px 24px rgba(47, 110, 229, 0.2);
+        .hero-cta-btn:hover {
+          border-color: #0b2f66;
+          background: #0b2f66;
+          box-shadow: 0 12px 24px rgba(47, 110, 229, 0.22);
           transform: translateY(-2px);
         }
 
-        .hero-google-btn:active {
+        .hero-cta-btn:active {
           transform: translateY(0);
         }
 
@@ -471,9 +470,8 @@ export default class HeroComponent {
             <p class="hero-description">
               Le créateur de CV numéro 1 pour les CV professionnels, utilisé par des millions de personnes
             </p>
-            <button type="button" class="hero-google-btn" data-action="hero-google-login">
-              <i class="fa-brands fa-google" aria-hidden="true"></i>
-              Se connecter avec Google
+            <button type="button" class="hero-cta-btn" data-cv-start="1">
+              Commencer mon CV
             </button>
           </div>
 
@@ -536,18 +534,6 @@ export default class HeroComponent {
     card.addEventListener("pointermove", onMove);
     card.addEventListener("pointerleave", onLeave);
     card.addEventListener("pointerenter", onEnter);
-  }
-
-  bindAuthCta() {
-    const button = this.root.querySelector('[data-action="hero-google-login"]');
-    if (!button) return;
-
-    button.addEventListener("click", () => {
-      const googleBtn = document.querySelector('#auth-modal-root [data-action="google"]');
-      if (googleBtn instanceof HTMLElement) {
-        googleBtn.click();
-      }
-    });
   }
 
   delay(ms) {

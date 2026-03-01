@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiprofil</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <style>
+    :root {
+      --hp-blue-900: #0b2f66;
+      --hp-blue-700: #174ea6;
+      --hp-blue-500: #2f6ee5;
+      --hp-ink: #0f1f3d;
+      --hp-bg: #f4f8ff;
+      --hp-card: #ffffff;
+      --hp-line: #d5e3ff;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--hp-ink);
+      background: var(--hp-bg);
+    }
+  </style>
+</head>
+<body data-page-key="entreprises">
+  <div id="sierra-page-root"></div>
+
+  <script type="module">
+    import { bootstrapMarketingPage } from "./marketingPages.js";
+    bootstrapMarketingPage(document.body.dataset.pageKey);
+  </script>
+</body>
+</html>

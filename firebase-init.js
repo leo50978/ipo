@@ -5,7 +5,9 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     doc,
+    setDoc,
     updateDoc,
     deleteDoc,
     query,
@@ -25,8 +27,22 @@ const firebaseConfig = {
 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-const db = getFirestore(app);
+export const db = getFirestore(app);
 const tipsCollection = collection(db, 'tips');
+
+export {
+    collection,
+    addDoc,
+    getDocs,
+    getDoc,
+    doc,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    serverTimestamp
+};
 
 export const TIP_FIELDS = [
     { key: 'firstname', label: 'Prenom' },
@@ -125,4 +141,62 @@ export async function updateTip(id, payload) {
 export async function deleteTip(id) {
     if (!id) throw new Error('Id manquant.');
     await deleteDoc(doc(db, 'tips', id));
+}
+
+export async function ensureClientProfile(user, overrides = {}) {
+    if (!user?.uid) {
+        throw new Error('Utilisateur non authentifie.');
+    }
+
+    const clientRef = doc(db, 'clients', user.uid);
+    const snapshot = await getDoc(clientRef);
+    const baseProfile = {
+        uid: user.uid,
+        name: String(user.displayName || '').trim(),
+        email: String(user.email || '').trim(),
+        phone: '',
+        address: '',
+        city: ''
+    };
+
+    if (!snapshot.exists()) {
+        const createdProfile = {
+            ...baseProfile,
+            ...overrides,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        };
+        await setDoc(clientRef, createdProfile);
+        return {
+            id: user.uid,
+            ...createdProfile
+        };
+    }
+
+    const existing = snapshot.data() || {};
+    const updates = {};
+
+    if (!existing.uid) updates.uid = user.uid;
+    if (!existing.name && baseProfile.name) updates.name = baseProfile.name;
+    if (!existing.email && baseProfile.email) updates.email = baseProfile.email;
+    if (overrides && typeof overrides === 'object') {
+        Object.entries(overrides).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                updates[key] = value;
+            }
+        });
+    }
+
+    if (Object.keys(updates).length > 0) {
+        await updateDoc(clientRef, {
+            ...updates,
+            updatedAt: serverTimestamp()
+        });
+    }
+
+    return {
+        id: user.uid,
+        ...existing,
+        ...updates
+    };
 }

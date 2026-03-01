@@ -39,30 +39,30 @@ export default class CvCtaFooterComponent {
             <div>
               <h3 class="mb-4 text-base font-bold text-[#111827]">Liens populaires</h3>
               <ul class="space-y-2.5 text-sm text-[#4b5563]">
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Blog</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Créateur de CV</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Centre de connaissances</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Services</a></li>
+                <li><a href="./blog.html" class="transition hover:text-[var(--hp-blue-700)]">Blog</a></li>
+                <li><a href="./createur-cv.html" class="transition hover:text-[var(--hp-blue-700)]">Créateur de CV</a></li>
+                <li><a href="./centre-connaissances.html" class="transition hover:text-[var(--hp-blue-700)]">Centre de connaissances</a></li>
+                <li><a href="./services.html" class="transition hover:text-[var(--hp-blue-700)]">Services</a></li>
               </ul>
             </div>
 
             <div>
               <h3 class="mb-4 text-base font-bold text-[#111827]">Ressources principales</h3>
               <ul class="space-y-2.5 text-sm text-[#4b5563]">
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Conseils RH par champ</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Exemples de CV</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Guide de rédaction CV</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Compétences en matière de CV</a></li>
+                <li><a href="./conseils-rh.html" class="transition hover:text-[var(--hp-blue-700)]">Conseils RH par champ</a></li>
+                <li><a href="./exemples-cv.html" class="transition hover:text-[var(--hp-blue-700)]">Exemples de CV</a></li>
+                <li><a href="./guide-redaction-cv.html" class="transition hover:text-[var(--hp-blue-700)]">Guide de rédaction CV</a></li>
+                <li><a href="./competences-cv.html" class="transition hover:text-[var(--hp-blue-700)]">Compétences en matière de CV</a></li>
               </ul>
             </div>
 
             <div>
               <h3 class="mb-4 text-base font-bold text-[#111827]">Notre entreprise</h3>
               <ul class="space-y-2.5 text-sm text-[#4b5563]">
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">À propos de nous</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Hiprofil pour les entreprises</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Programme d'affiliation</a></li>
-                <li><a href="#" class="transition hover:text-[var(--hp-blue-700)]">Contactez-nous</a></li>
+                <li><a href="./a-propos.html" class="transition hover:text-[var(--hp-blue-700)]">À propos de nous</a></li>
+                <li><a href="./entreprises.html" class="transition hover:text-[var(--hp-blue-700)]">Hiprofil pour les entreprises</a></li>
+                <li><a href="./affiliation.html" class="transition hover:text-[var(--hp-blue-700)]">Programme d'affiliation</a></li>
+                <li><a href="./contact.html" class="transition hover:text-[var(--hp-blue-700)]">Contactez-nous</a></li>
               </ul>
             </div>
           </div>

@@ -57,39 +57,143 @@
     <builder-cv id="builder-cv"></builder-cv>
     <previsualisation-cv id="previsualisation-cv" hidden></previsualisation-cv>
     <tips-modal id="tips-modal"></tips-modal>
+    <div id="builder-open-loader" class="absolute inset-0 z-[85] hidden items-center justify-center bg-slate-950/72 backdrop-blur-sm" aria-live="polite" aria-busy="true">
+      <div class="w-[min(92vw,360px)] rounded-2xl border border-slate-700/70 bg-slate-900/95 px-5 py-4 shadow-2xl">
+        <div class="flex items-center gap-3">
+          <span class="inline-block h-7 w-7 animate-spin rounded-full border-[3px] border-slate-500 border-t-sky-400"></span>
+          <p id="builder-open-loader-text" class="text-sm font-semibold text-slate-100">Preparation du builder...</p>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script type="module">
     import HeaderComponent from "./header.js";
     import HeroComponent from "./hero.js";
-    import "./cvHero.js";
-    import "./cvFeatures.js";
-    import "./cvExamplesHero.js";
-    import "./cvMainHero.js";
-    import "./cvFullFeatures.js";
-    import "./cvEasyHero.js";
-    import "./cvResourcesHero.js";
-    import "./cvResourcesHeroAlt.js";
-    import "./cvResourcesHeroV2.js";
-    import "./cvStepsFaq.js";
-    import "./cvCtaFooter.js";
-    import "./nobgMotion.js";
-    import "./sectionBgMotion.js";
-    import "./scrollSceneMotion.js";
-    import "./imageScrollMotion.js";
-    import "./buildercv.js";
-    import "./previsualisation.js";
-    import "./tips.js";
     import { initAuth } from "./auth.js";
+    import { initAccountPanel } from "./accountPanel.js";
+    import { initCvAccessFlow } from "./cvAccessFlow.js";
+    import { initDepositFlow } from "./depositFlow.js";
+
+    const sectionModulesCritical = [
+      "./cvHero.js",
+      "./cvFeatures.js",
+      "./cvExamplesHero.js"
+    ];
+    const sectionModulesDeferred = [
+      "./cvMainHero.js",
+      "./cvFullFeatures.js",
+      "./cvEasyHero.js",
+      "./cvResourcesHero.js",
+      "./cvResourcesHeroAlt.js",
+      "./cvResourcesHeroV2.js",
+      "./cvStepsFaq.js",
+      "./cvCtaFooter.js"
+    ];
+    const motionModulesDeferred = [
+      "./nobgMotion.js",
+      "./sectionBgMotion.js",
+      "./scrollSceneMotion.js",
+      "./imageScrollMotion.js"
+    ];
+    const builderModules = [
+      "./buildercv.js",
+      "./previsualisation.js",
+      "./tips.js"
+    ];
+
+    const loadModules = (paths) => Promise.all(paths.map((path) => import(path)));
+    const scheduleIdle = (task, timeout = 1200) => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => task(), { timeout });
+        return;
+      }
+      window.setTimeout(task, 80);
+    };
+
+    let builderModulesReadyPromise = null;
+    const ensureBuilderModulesLoaded = async () => {
+      if (!builderModulesReadyPromise) {
+        builderModulesReadyPromise = (async () => {
+          await loadModules(builderModules);
+          await Promise.all([
+            customElements.whenDefined("builder-cv"),
+            customElements.whenDefined("previsualisation-cv"),
+            customElements.whenDefined("tips-modal")
+          ]);
+        })().catch((error) => {
+          builderModulesReadyPromise = null;
+          throw error;
+        });
+      }
+      return builderModulesReadyPromise;
+    };
 
     const authApi = initAuth();
+    initAccountPanel(authApi);
+    initCvAccessFlow(authApi);
+    initDepositFlow(authApi);
     new HeaderComponent("sierra-header-root", { authApi });
     new HeroComponent("sierra-hero-root");
+
+    loadModules(sectionModulesCritical).catch((error) => {
+      console.error("Echec chargement sections critiques:", error);
+    });
+    scheduleIdle(() => {
+      loadModules(sectionModulesDeferred).catch((error) => {
+        console.error("Echec chargement sections differees:", error);
+      });
+    }, 900);
+    scheduleIdle(() => {
+      loadModules(motionModulesDeferred).catch((error) => {
+        console.error("Echec chargement animations differees:", error);
+      });
+    }, 1800);
+    let builderPrefetchDone = false;
+    const triggerBuilderPrefetch = () => {
+      if (builderPrefetchDone) return;
+      builderPrefetchDone = true;
+      void ensureBuilderModulesLoaded().catch((error) => {
+        builderPrefetchDone = false;
+        console.error("Echec prechargement builder:", error);
+      });
+    };
+    scheduleIdle(() => {
+      triggerBuilderPrefetch();
+    }, 2200);
+
     const builderSection = document.getElementById("builder-section");
     const homeContent = document.getElementById("home-content");
     const builderComponent = document.getElementById("builder-cv");
     const previewComponent = document.getElementById("previsualisation-cv");
     const tipsModal = document.getElementById("tips-modal");
+    const builderOpenLoader = document.getElementById("builder-open-loader");
+    const builderOpenLoaderText = document.getElementById("builder-open-loader-text");
+    let builderLoaderTimer = null;
+    let isOpeningBuilder = false;
+
+    const showBuilderLoader = (message = "Preparation du builder...") => {
+      if (!(builderOpenLoader instanceof HTMLElement)) return;
+      if (builderOpenLoaderText) builderOpenLoaderText.textContent = message;
+      if (builderLoaderTimer) {
+        clearTimeout(builderLoaderTimer);
+      }
+      builderLoaderTimer = window.setTimeout(() => {
+        builderLoaderTimer = null;
+        builderOpenLoader.classList.remove("hidden");
+        builderOpenLoader.classList.add("flex");
+      }, 120);
+    };
+
+    const hideBuilderLoader = () => {
+      if (!(builderOpenLoader instanceof HTMLElement)) return;
+      if (builderLoaderTimer) {
+        clearTimeout(builderLoaderTimer);
+        builderLoaderTimer = null;
+      }
+      builderOpenLoader.classList.add("hidden");
+      builderOpenLoader.classList.remove("flex");
+    };
 
     const updateOpenBuilderParam = (enabled) => {
       const url = new URL(window.location.href);
@@ -101,25 +205,45 @@
       window.history.replaceState({}, "", url);
     };
 
-    const openBuilder = () => {
+    const openBuilder = async () => {
       if (!builderSection || !homeContent || !builderComponent || !previewComponent) return;
+      if (isOpeningBuilder) return;
+      isOpeningBuilder = true;
       homeContent.hidden = true;
       builderSection.hidden = false;
       builderSection.setAttribute("aria-hidden", "false");
-      builderComponent.hidden = false;
+      builderComponent.hidden = true;
       previewComponent.hidden = true;
-      if (typeof builderComponent.resetFlow === "function") {
-        builderComponent.resetFlow();
+      showBuilderLoader("Preparation du builder...");
+      try {
+        await ensureBuilderModulesLoaded();
+        hideBuilderLoader();
+        builderComponent.hidden = false;
+        previewComponent.hidden = true;
+        if (typeof builderComponent.resetFlow === "function") {
+          builderComponent.resetFlow();
+        }
+        if (tipsModal && typeof tipsModal.close === "function") {
+          tipsModal.close();
+        }
+        document.body.classList.add("overflow-hidden");
+        updateOpenBuilderParam(true);
+      } catch (error) {
+        console.error("Impossible de charger le builder:", error);
+        hideBuilderLoader();
+        builderSection.hidden = true;
+        builderSection.setAttribute("aria-hidden", "true");
+        homeContent.hidden = false;
+        document.body.classList.remove("overflow-hidden");
+        return;
+      } finally {
+        isOpeningBuilder = false;
       }
-      if (tipsModal && typeof tipsModal.close === "function") {
-        tipsModal.close();
-      }
-      document.body.classList.add("overflow-hidden");
-      updateOpenBuilderParam(true);
     };
 
     const closeBuilder = () => {
       if (!builderSection || !homeContent || !builderComponent || !previewComponent) return;
+      hideBuilderLoader();
       builderSection.hidden = true;
       builderSection.setAttribute("aria-hidden", "true");
       builderComponent.hidden = false;
@@ -135,6 +259,7 @@
 
     const openPreview = (data) => {
       if (!builderComponent || !previewComponent) return;
+      hideBuilderLoader();
       builderComponent.hidden = true;
       previewComponent.hidden = false;
       if (tipsModal && typeof tipsModal.close === "function") {
@@ -171,7 +296,7 @@
         }
 
         if (isConnected) {
-          node.textContent = "Commencer mon cv gratuit";
+          node.textContent = "Commencer mon CV";
           node.removeAttribute("data-auth-mode");
           node.removeAttribute("data-action");
           node.setAttribute("data-cv-start", "1");
@@ -208,10 +333,19 @@
       syncAuthButtonsVisibility(event?.detail?.user || null);
     });
 
+    const maybePrefetchBuilderOnIntent = (event) => {
+      if (!(event.target instanceof Element)) return;
+      if (!event.target.closest("[data-cv-start]")) return;
+      triggerBuilderPrefetch();
+    };
+    document.addEventListener("pointerover", maybePrefetchBuilderOnIntent, { passive: true });
+    document.addEventListener("pointerdown", maybePrefetchBuilderOnIntent, { passive: true });
+    document.addEventListener("focusin", maybePrefetchBuilderOnIntent);
+
     document.addEventListener("click", (event) => {
       if (event.target.closest("[data-cv-start]")) {
         event.preventDefault();
-        openBuilder();
+        window.dispatchEvent(new CustomEvent("app:request-cv-start"));
         return;
       }
       const trigger = event.target.closest("[data-auth-mode]");
@@ -220,7 +354,9 @@
       authApi.open(mode);
     });
 
-    window.addEventListener("app:open-builder", openBuilder);
+    window.addEventListener("app:open-builder", () => {
+      void openBuilder();
+    });
     if (builderSection) {
       builderSection.addEventListener("close-builder", closeBuilder);
       builderSection.addEventListener("open-tip", (event) => {
@@ -234,18 +370,11 @@
         openPreview(event.detail);
       });
       builderSection.addEventListener("preview-back", backToBuilder);
-      builderSection.addEventListener("preview-edit-step", (event) => {
-        backToBuilder();
-        const step = event.detail && event.detail.step;
-        if (step && typeof builderComponent.openStep === "function") {
-          builderComponent.openStep(step);
-        }
-      });
     }
 
     const params = new URLSearchParams(window.location.search);
     if (params.get("open") === "builder") {
-      openBuilder();
+      void openBuilder();
     }
   </script>
 </body>
